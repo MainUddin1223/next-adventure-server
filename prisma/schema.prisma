@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id             String           @id @default(uuid())
+  first_name     String
+  last_name      String
+  email          String           @unique
+  password       String
+  role           Role             @default(user)
+  contact_no     String
+  profile_img    String
+  refresh_token  String?
+  rating         Decimal?         @db.Decimal(10, 1)
+  is_featured    Boolean          @default(false)
+  about_user     String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  plans          Plans[]
+  bookingHistory BookingHistory[]
+  payoutHistory  PayoutHistory[]
+
+  @@map("user")
+}
+
+enum Role {
+  admin
+  user
+  super_admin
+  agency
+}
+
+model Plans {
+  id                String          @id @default(uuid())
+  users             Users           @relation(fields: [agency_id], references: [id])
+  agency_id         String
+  plan_name         String
+  images            String[]
+  starting_location String
+  price             Decimal         @db.Decimal(10, 2)
+  cover_location    String[]
+  tour_duration     Int
+  starting_time     DateTime
+  total_meals       Int
+  description       String
+  is_featured       Boolean         @default(false)
+  booking_deadline  DateTime
+  events            String[]
+  PayoutHistory     PayoutHistory[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model BookingHistory {
+  id           String        @id @default(uuid())
+  status       BookingStatus @default(pending)
+  user         Users         @relation(fields: [user_id], references: [id])
+  quantity     Int
+  user_id      String
+  total_amount Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+enum BookingStatus {
+  pending
+  booked
+  cenceled
+  rejected
+}
+
+model PayoutHistory {
+  id        String       @id @default(uuid())
+  plan      Plans        @relation(fields: [plan_id], references: [id])
+  plan_id   String
+  user      Users        @relation(fields: [agency_id], references: [id])
+  agency_id String
+  status    PayoutStatus
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+enum PayoutStatus {
+  pending
+  paid
+  cenceled
+}
