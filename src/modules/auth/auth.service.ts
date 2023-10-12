@@ -63,7 +63,7 @@ const signin = async (data: ILoginPayload) => {
   }
 
   const payload = { role: isUserExist.role, userId: isUserExist.id };
-  const acessToken = await jwtHelpers.createToken(
+  const accessToken = await jwtHelpers.createToken(
     payload,
     config.jwt.jwt_access_secret as string,
     config.jwt.expires_in as string,
@@ -73,13 +73,13 @@ const signin = async (data: ILoginPayload) => {
 
   if (isUserExist.role === 'admin' || isUserExist.role === 'super_admin') {
     const userData = await authUtils.getAdminData(isUserExist.id);
-    return { result: userData, acessToken };
+    return { result: userData, accessToken };
   } else if (isUserExist.role === 'agency') {
     const userData = await authUtils.getAgencyData(isUserExist.id);
-    return { result: userData, acessToken };
+    return { result: userData, accessToken };
   } else {
     const userData = await authUtils.getUserData(isUserExist.id);
-    return { result: userData, acessToken };
+    return { result: userData, accessToken };
   }
 };
 

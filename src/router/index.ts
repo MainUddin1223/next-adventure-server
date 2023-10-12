@@ -3,6 +3,7 @@ import express from 'express';
 import config from '../config';
 import authRouter from '../modules/auth/auth.route';
 import agencyRouter from '../modules/agency/agency.route';
+import userRouter from '../modules/user/user.route';
 const router = express.Router();
 
 const defaultRoutes = [
@@ -14,10 +15,10 @@ const defaultRoutes = [
     path: '/agency',
     route: agencyRouter.agencyRouter,
   },
-  // {
-  //   path: '/categories',
-  //   route: categoryRouter.categoryRouter,
-  // },
+  {
+    path: '/user',
+    route: userRouter.userRouter,
+  },
   // {
   //   path: '/books',
   //   route: bookRouter.bookRouter,

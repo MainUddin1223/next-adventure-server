@@ -87,7 +87,9 @@ model PayoutHistory {
   user      Users        @relation(fields: [agency_id], references: [id])
   plan_id   Int
   agency_id Int
-  status    PayoutStatus
+  status    PayoutStatus @default(pending)
+  amount    Decimal
+  quantity  Int
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 }
