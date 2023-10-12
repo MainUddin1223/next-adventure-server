@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
-import { ICreatePlanData } from './agency.type';
+import { ICreatePlanData, IMetaData } from './agency.type';
 import { IFilterOption } from '../../types';
 import { getPlanByRoleQuery } from './agency.utils';
+import { JwtPayload } from 'jsonwebtoken';
+import ApiError from '../../errorHandlers/apiError';
+import { StatusCodes } from 'http-status-codes';
 
 const prisma = new PrismaClient();
 
@@ -11,10 +14,11 @@ const createPlan = async (data: ICreatePlanData) => {
   });
   return result;
 };
+
 const getPlans = async (
-  meta: any,
+  meta: IMetaData,
   filterOptions: IFilterOption,
-  endUser: any
+  endUser: JwtPayload | null
 ) => {
   const { skip, take, orderBy } = meta;
   const queryOption: { [key: string]: any } = {};
@@ -63,7 +67,9 @@ const getPlans = async (
   });
   const totalCount =
     endUser?.role === 'agency'
-      ? await prisma.plans.count({ where: { agency_id: endUser.userId } })
+      ? await prisma.plans.count({
+          where: { agency_id: endUser.userId as number },
+        })
       : await prisma.plans.count();
   const totalPage = totalCount > take ? totalCount / Number(take) : 1;
   return {
@@ -72,4 +78,85 @@ const getPlans = async (
   };
 };
 
-export const agencyService = { createPlan, getPlans };
+const getTourPlanById = async (id: number, user: JwtPayload | null) => {
+  if (user && user?.role == 'agency') {
+    console.log(user?.userId, id);
+    const result = await prisma.plans.findFirst({
+      where: {
+        id,
+        agency_id: user.userId,
+      },
+      include: {
+        Payout_history: true,
+        booking_history: true,
+      },
+    });
+    return result;
+  }
+  const result = await prisma.plans.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      plan_name: true,
+      id: true,
+      starting_location: true,
+      starting_time: true,
+      price: true,
+      tour_duration: true,
+      cover_location: true,
+      total_meals: true,
+      description: true,
+      booking_deadline: true,
+      events: true,
+      users: {
+        select: {
+          first_name: true,
+          last_name: true,
+          id: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
+const updateTourPlan = async (data: Partial<ICreatePlanData>, id: number) => {
+  const result = await prisma.plans.update({
+    where: {
+      id: data.id,
+      agency_id: id,
+    },
+    data,
+  });
+  return result;
+};
+
+const deleteTourPlan = async (plan_id: number, agency_id: number) => {
+  const planBooked = await prisma.bookingHistory.count({
+    where: {
+      plan_id,
+    },
+  });
+  if (planBooked > 0) {
+    throw new ApiError(
+      StatusCodes.CONFLICT,
+      'Your tour plan already booked by user.So you can not delete this plan'
+    );
+  }
+  const result = await prisma.plans.delete({
+    where: {
+      id: plan_id,
+      agency_id,
+    },
+  });
+  return result;
+};
+
+export const agencyService = {
+  createPlan,
+  getPlans,
+  getTourPlanById,
+  updateTourPlan,
+  deleteTourPlan,
+};

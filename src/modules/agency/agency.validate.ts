@@ -60,5 +60,54 @@ export const createPlanSchema = Joi.object({
     'any.required': 'Booking deadline is required',
   }),
 });
+export const updatePlanSchema = Joi.object({
+  plan_name: Joi.string().optional().messages({
+    'string.pattern.base': 'Invalid plan name',
+  }),
+  images: Joi.array().items(Joi.string()).optional().messages({
+    'array.base': 'Atleast one image is required',
+    'array.includes': 'Images must be strings',
+  }),
+  starting_location: Joi.string().optional().messages({
+    'string.pattern.base': 'Invalid starting location',
+  }),
+  price: Joi.number().optional().messages({
+    'number.base': 'Invalid price',
+  }),
+  cover_location: Joi.array()
+    .optional()
+    .items(
+      Joi.string().messages({
+        'array.base': 'Atleast one cover location is required',
+        'array.includes': 'Cover location must be strings',
+      })
+    ),
+  events: Joi.array()
+    .items(
+      Joi.string().messages({
+        'array.includes': 'Event must be strings',
+      })
+    )
+    .optional(),
+  tour_duration: Joi.number().integer().min(1).optional().messages({
+    'number.base': 'Invalid tour duration',
+    'number.integer': 'Tour duration must be an integer',
+    'number.min': 'Tour duration must be a positive integer',
+  }),
+  starting_time: Joi.date().optional().messages({
+    'date.base': 'Invalid starting time',
+  }),
+  total_meals: Joi.number().integer().min(1).optional().messages({
+    'number.base': 'Invalid total meals',
+    'number.integer': 'Total meals must be an integer',
+    'number.min': 'Total meals must be a positive integer',
+  }),
+  description: Joi.string().optional().messages({
+    'string.pattern.base': 'Invalid description',
+  }),
+  booking_deadline: Joi.date().optional().messages({
+    'date.base': 'Invalid booking deadline',
+  }),
+});
 
 // Example usage and validation handling remain the same.

@@ -12,3 +12,9 @@ export type ICreatePlanData = {
   description: string;
   booking_deadline: Date;
 };
+
+export type IMetaData = {
+  skip: number;
+  take: number;
+  orderBy: any;
+};

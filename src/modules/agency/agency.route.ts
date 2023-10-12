@@ -6,5 +6,10 @@ const router = express.Router();
 
 router.route('/plans').get(verifyAuth, agencyController.getTourPlans);
 router.route('/create-plan').post(verifyAgency, agencyController.createPlan);
+router
+  .route('/plan/:id')
+  .get(verifyAuth, agencyController.getTourPlanById)
+  .patch(verifyAgency, agencyController.updateTourPlan)
+  .delete(verifyAgency, agencyController.deleteTourPlan);
 
 export default { agencyRouter: router };

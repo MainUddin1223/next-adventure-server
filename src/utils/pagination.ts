@@ -1,7 +1,7 @@
 export const pagination = (data: any) => {
   const {
     page = 1,
-    size = 100,
+    size = 15,
     sortBy = 'createdAt',
     sortOrder = 'desc',
   } = data;
