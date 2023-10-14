@@ -52,4 +52,32 @@ const bookTourPlan = async (payload: IBookPlanPayload) => {
   return createBooking;
 };
 
-export const userService = { bookTourPlan };
+const getTourPlanAndAgency = async () => {
+  const tourPlans = await prisma.plans.findMany({
+    take: 5,
+
+    select: {
+      id: true,
+      plan_name: true,
+      images: true,
+      price: true,
+      starting_time: true,
+      starting_location: true,
+    },
+  });
+  const agencies = await prisma.users.findMany({
+    take: 5,
+    where: {
+      role: 'agency',
+    },
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      profile_img: true,
+    },
+  });
+  return { tourPlans, agencies };
+};
+
+export const userService = { bookTourPlan, getTourPlanAndAgency };

@@ -17,7 +17,7 @@ const createUser = async (payload: IRegisterPayload) => {
     data,
   });
   const accessData = { role: result.role, userId: result.id };
-  const acessToken = await jwtHelpers.createToken(
+  const accessToken = await jwtHelpers.createToken(
     accessData,
     config.jwt.jwt_access_secret as string,
     config.jwt.expires_in as string,
@@ -26,14 +26,14 @@ const createUser = async (payload: IRegisterPayload) => {
   );
   if (data.role === 'admin') {
     const userData = await authUtils.getAdminData(result.id);
-    return { result: userData, acessToken };
+    return { result: userData, accessToken };
   }
   if (data.role === 'agency') {
     const userData = await authUtils.getAgencyData(result.id);
-    return { result: userData, acessToken };
+    return { result: userData, accessToken };
   } else {
     const userData = await authUtils.getUserData(result.id);
-    return { result: userData, acessToken };
+    return { result: userData, accessToken };
   }
 };
 

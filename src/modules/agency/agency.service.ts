@@ -79,8 +79,8 @@ const getPlans = async (
 };
 
 const getTourPlanById = async (id: number, user: JwtPayload | null) => {
+  console.log(id, user);
   if (user && user?.role == 'agency') {
-    console.log(user?.userId, id);
     const result = await prisma.plans.findFirst({
       where: {
         id,
@@ -114,6 +114,8 @@ const getTourPlanById = async (id: number, user: JwtPayload | null) => {
           first_name: true,
           last_name: true,
           id: true,
+          rating: true,
+          profile_img: true,
         },
       },
     },

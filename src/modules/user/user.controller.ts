@@ -31,4 +31,18 @@ const bookPlan = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const userController = { getTourPlanById, bookPlan };
+const getplansAndAgencies = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.getTourPlanAndAgency();
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
+export const userController = {
+  getTourPlanById,
+  bookPlan,
+  getplansAndAgencies,
+};

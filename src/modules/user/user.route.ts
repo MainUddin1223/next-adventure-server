@@ -5,5 +5,6 @@ import { userController } from './user.controller';
 const router = express.Router();
 
 router.route('/book-plan').post(verifyUser, userController.bookPlan);
+router.route('/agency-plans').get(userController.getplansAndAgencies);
 
 export default { userRouter: router };
