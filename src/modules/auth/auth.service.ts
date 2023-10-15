@@ -95,4 +95,21 @@ const signOut = async (id: number) => {
   return { message: 'Succssfully logout' };
 };
 
-export const authService = { createUser, signin, signOut };
+const getProfile = async (id: number) => {
+  const result = await prisma.users.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      first_name: true,
+      last_name: true,
+      profile_img: true,
+      email: true,
+      about_user: true,
+      contact_no: true,
+    },
+  });
+  return result;
+};
+
+export const authService = { createUser, signin, signOut, getProfile };

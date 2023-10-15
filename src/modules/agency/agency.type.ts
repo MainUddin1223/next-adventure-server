@@ -19,3 +19,9 @@ export type IMetaData = {
   orderBy: any;
   page: number;
 };
+
+export type IBookPlanPayload = {
+  userId: number;
+  planId: number;
+  quantity: number;
+};

@@ -44,6 +44,16 @@ const signin = catchAsync(async (req: Request, res: Response) => {
     });
   }
 });
+const getProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = req?.user?.userId;
+  const result = await authService.getProfile(userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Profile fatched successfully',
+    data: result,
+  });
+});
 
 const signOut = catchAsync(async (req: Request, res: Response) => {
   const result = await authService.signOut(req.user?.userId);
@@ -55,4 +65,4 @@ const signOut = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const authController = { registerUser, signin, signOut };
+export const authController = { registerUser, signin, signOut, getProfile };

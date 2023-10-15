@@ -3,12 +3,7 @@ import ApiError from '../../errorHandlers/apiError';
 import { StatusCodes } from 'http-status-codes';
 import { IMetaData } from '../agency/agency.type';
 import { IFilterOption } from '../../types';
-
-export type IBookPlanPayload = {
-  userId: number;
-  planId: number;
-  quantity: number;
-};
+import { IBookPlanPayload } from './user.type';
 
 const prisma = new PrismaClient();
 

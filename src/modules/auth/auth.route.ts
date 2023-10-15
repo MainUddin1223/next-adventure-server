@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.route('/signup').post(authController.registerUser);
 router.route('/signin').post(authController.signin);
+router.route('/profile').get(verifyAuth, authController.getProfile);
 router.route('/signout').post(verifyAuth, authController.signOut);
 
 export default { authRouter: router };
