@@ -17,4 +17,5 @@ export type IMetaData = {
   skip: number;
   take: number;
   orderBy: any;
+  page: number;
 };

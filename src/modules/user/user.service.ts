@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import ApiError from '../../errorHandlers/apiError';
 import { StatusCodes } from 'http-status-codes';
+import { IMetaData } from '../agency/agency.type';
+import { IFilterOption } from '../../types';
 
 export type IBookPlanPayload = {
   userId: number;
@@ -79,5 +81,124 @@ const getTourPlanAndAgency = async () => {
   });
   return { tourPlans, agencies };
 };
+//!Need to be fixed
+const getAgencies = async (meta: IMetaData, filterOptions: IFilterOption) => {
+  const { skip, take, orderBy, page } = meta;
+  const queryOption: { [key: string]: any } = {};
 
-export const userService = { bookTourPlan, getTourPlanAndAgency };
+  if (Object.keys(filterOptions).length) {
+    const { search, ...restOptions } = filterOptions;
+
+    if (search) {
+      queryOption['OR'] = [
+        {
+          first_name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          last_name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+    Object.entries(restOptions).forEach(([field, value]) => {
+      queryOption[field] = value;
+    });
+  }
+
+  const result = await prisma.users.findMany({
+    skip,
+    take,
+    orderBy,
+    where: {
+      ...queryOption,
+      role: 'agency',
+    },
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      profile_img: true,
+    },
+  });
+
+  const totalCount = await prisma.users.count({
+    where: {
+      role: 'agency',
+    },
+  });
+
+  const totalPage = totalCount > take ? totalCount / Number(take) : 1;
+  return {
+    result,
+    meta: { page: page, size: take, total: totalCount, totalPage },
+  };
+};
+
+const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
+  const { skip, take, orderBy, page } = meta;
+  const queryOption: { [key: string]: any } = {};
+
+  if (Object.keys(filterOptions).length) {
+    const { search, ...restOptions } = filterOptions;
+
+    if (search) {
+      queryOption['OR'] = [
+        {
+          first_name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          last_name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
+    Object.entries(restOptions).forEach(([field, value]) => {
+      queryOption[field] = value;
+    });
+  }
+
+  const result = await prisma.users.findMany({
+    skip,
+    take,
+    orderBy,
+    where: {
+      ...queryOption,
+      role: 'agency',
+    },
+    select: {
+      id: true,
+      first_name: true,
+      last_name: true,
+      profile_img: true,
+    },
+  });
+
+  const totalCount = await prisma.users.count({
+    where: {
+      role: 'agency',
+    },
+  });
+
+  const totalPage = totalCount > take ? totalCount / Number(take) : 1;
+  return {
+    result,
+    meta: { page: page, size: take, total: totalCount, totalPage },
+  };
+};
+
+export const userService = {
+  bookTourPlan,
+  getTourPlanAndAgency,
+  getAgencies,
+  getTourPlans,
+};
