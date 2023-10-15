@@ -81,7 +81,7 @@ const getTourPlanAndAgency = async () => {
   });
   return { tourPlans, agencies };
 };
-//!Need to be fixed
+
 const getAgencies = async (meta: IMetaData, filterOptions: IFilterOption) => {
   const { skip, take, orderBy, page } = meta;
   const queryOption: { [key: string]: any } = {};
@@ -144,42 +144,61 @@ const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
   const queryOption: { [key: string]: any } = {};
 
   if (Object.keys(filterOptions).length) {
-    const { search, ...restOptions } = filterOptions;
+    const { search, max_price, min_price, ...restOptions } = filterOptions;
 
     if (search) {
       queryOption['OR'] = [
         {
-          first_name: {
+          plan_name: {
             contains: search,
             mode: 'insensitive',
           },
         },
         {
-          last_name: {
+          starting_location: {
             contains: search,
             mode: 'insensitive',
           },
         },
       ];
     }
+
+    if (max_price || min_price) {
+      if (max_price) {
+        const price = { lte: max_price };
+        queryOption['price'] = price;
+      }
+      if (min_price) {
+        const price = { gte: min_price };
+        queryOption['price'] = price;
+      }
+    }
+
     Object.entries(restOptions).forEach(([field, value]) => {
       queryOption[field] = value;
     });
   }
 
-  const result = await prisma.users.findMany({
+  const result = await prisma.plans.findMany({
     skip,
     take,
     orderBy,
     where: {
       ...queryOption,
-      role: 'agency',
     },
     select: {
+      plan_name: true,
       id: true,
-      first_name: true,
-      last_name: true,
-      profile_img: true,
+      starting_location: true,
+      starting_time: true,
+      price: true,
+      users: {
+        select: {
+          first_name: true,
+          last_name: true,
+          id: true,
+        },
+      },
     },
   });
 
@@ -196,9 +215,41 @@ const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
   };
 };
 
+const getAgencyById = async (id: number) => {
+  const result = await prisma.users.findFirst({
+    where: {
+      id,
+      role: 'agency',
+    },
+    select: {
+      first_name: true,
+      last_name: true,
+      contact_no: true,
+      profile_img: true,
+      rating: true,
+      about_user: true,
+      plans: {
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 5,
+        select: {
+          id: true,
+          plan_name: true,
+          images: true,
+          price: true,
+          starting_location: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 export const userService = {
   bookTourPlan,
   getTourPlanAndAgency,
   getAgencies,
   getTourPlans,
+  getAgencyById,
 };

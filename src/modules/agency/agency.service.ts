@@ -24,7 +24,7 @@ const getPlans = async (
   const queryOption: { [key: string]: any } = {};
 
   if (Object.keys(filterOptions).length) {
-    const { search, maxPrice, minPrice, ...restOptions } = filterOptions;
+    const { search, max_price, min_price, ...restOptions } = filterOptions;
 
     if (search) {
       queryOption['OR'] = [
@@ -42,13 +42,13 @@ const getPlans = async (
         },
       ];
     }
-    if (maxPrice || minPrice) {
-      if (maxPrice) {
-        const price = { lte: maxPrice };
+    if (max_price || min_price) {
+      if (max_price) {
+        const price = { lte: max_price };
         queryOption['price'] = price;
       }
-      if (minPrice) {
-        const price = { gte: minPrice };
+      if (min_price) {
+        const price = { gte: min_price };
         queryOption['price'] = price;
       }
     }

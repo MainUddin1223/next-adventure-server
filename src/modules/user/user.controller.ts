@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { userService } from './user.service';
 import { pagination } from '../../utils/pagination';
 import pick from '../../utils/pick';
-import { agencyFilterOptons } from './user.constant';
+import { agencyFilterOptons, tourPlanFilterOptions } from './user.constant';
 
 const getTourPlanById = catchAsync(async (req: Request, res: Response) => {
   const id = Number(req.params.id);
@@ -56,9 +56,34 @@ const getAgencies = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getTourPlans = catchAsync(async (req: Request, res: Response) => {
+  const paginationOptions = await pagination(req.query);
+  const filter = pick(req.query, tourPlanFilterOptions);
+  const result = await userService.getTourPlans(paginationOptions, filter);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
+const getAgencyById = catchAsync(async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const result = await userService.getAgencyById(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   getTourPlanById,
   bookPlan,
   getplansAndAgencies,
   getAgencies,
+  getTourPlans,
+  getAgencyById,
 };
