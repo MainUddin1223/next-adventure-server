@@ -4,6 +4,7 @@ import { authService } from './auth.service';
 import sendResponse from '../../utils/sendRespnse';
 import { StatusCodes } from 'http-status-codes';
 import {
+  registerValidateSchema,
   signUpValidateSchema,
   signinValidateSchema,
   validateUpdateSchema,
@@ -11,6 +12,36 @@ import {
 
 const signUp = catchAsync(async (req: Request, res: Response) => {
   const { error } = await signUpValidateSchema.validate(req.body);
+  if (error) {
+    sendResponse(res, {
+      statusCode: StatusCodes.NON_AUTHORITATIVE_INFORMATION,
+      success: false,
+      message: 'Sign up failed',
+      data: error.details,
+    });
+  }
+  if (req.body.password !== req.body.confirmPassword) {
+    sendResponse(res, {
+      statusCode: StatusCodes.NON_AUTHORITATIVE_INFORMATION,
+      success: false,
+      message: 'Confirm password mismatch!',
+      data: '',
+    });
+  } else {
+    delete req.body.confirmPassword;
+    const result = await authService.createUser(req.body);
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: 'Signup successful',
+      data: result,
+    });
+  }
+});
+
+const registerAgency = catchAsync(async (req: Request, res: Response) => {
+  console.log(req.body);
+  const { error } = await registerValidateSchema.validate(req.body);
   if (error) {
     sendResponse(res, {
       statusCode: StatusCodes.NON_AUTHORITATIVE_INFORMATION,
@@ -28,7 +59,7 @@ const signUp = catchAsync(async (req: Request, res: Response) => {
     });
   } else {
     delete req.body.confirmPassword;
-    const result = await authService.createUser(req.body);
+    const result = await authService.registerAgency(req.body);
     sendResponse(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -44,7 +75,7 @@ const signin = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res, {
       statusCode: StatusCodes.NON_AUTHORITATIVE_INFORMATION,
       success: false,
-      message: 'Registration failed',
+      message: 'Sign in failed',
       data: error.details,
     });
   } else {
@@ -106,4 +137,5 @@ export const authController = {
   signOut,
   getProfile,
   updateProfile,
+  registerAgency,
 };

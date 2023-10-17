@@ -17,6 +17,12 @@ app.use('/test', (req, res) => {
     message,
   });
 });
+app.use('/', (req, res) => {
+  const message = `Server is running `;
+  res.status(StatusCodes.OK).json({
+    message,
+  });
+});
 
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(StatusCodes.NOT_FOUND).json({

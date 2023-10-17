@@ -28,6 +28,24 @@ const createUser = async (payload: IRegisterPayload) => {
   return { result: userData, accessToken };
 };
 
+const registerAgency = async (payload: IRegisterPayload) => {
+  const hash = bcrypt.hashSync(payload.password, 10);
+  const data = { ...payload, password: hash };
+  const result = await prisma.users.create({
+    data: { ...data, role: 'agency' },
+  });
+  const accessData = { role: result.role, userId: result.id };
+  const accessToken = await jwtHelpers.createToken(
+    accessData,
+    config.jwt.jwt_access_secret as string,
+    config.jwt.expires_in as string,
+    config.jwt.refresh_secret as string,
+    config.jwt.refresh_expires_in as string
+  );
+  const userData = await authUtils.getAgencyData(result.id);
+  return { result: userData, accessToken };
+};
+
 const signin = async (data: ILoginPayload) => {
   const isUserExist = await prisma.users.findFirst({
     where: {
@@ -127,4 +145,5 @@ export const authService = {
   signOut,
   getProfile,
   updateProfile,
+  registerAgency,
 };

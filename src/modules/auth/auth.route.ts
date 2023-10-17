@@ -5,6 +5,7 @@ import { verifyAuth } from '../../middlewares/verifyAuth';
 const router = express.Router();
 
 router.route('/signup').post(authController.signUp);
+router.route('/register-agency').post(authController.registerAgency);
 router.route('/signin').post(authController.signin);
 router.route('/profile').get(verifyAuth, authController.getProfile);
 router.route('/signout').post(verifyAuth, authController.signOut);
