@@ -56,9 +56,21 @@ const getPayouts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const relaseAgencyPayout = catchAsync(async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const result = await adminService.relaseAgencyPayout(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
 export const adminController = {
   getAgencies,
   getTourPlans,
   getAllBookings,
   getPayouts,
+  relaseAgencyPayout,
 };

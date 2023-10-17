@@ -10,5 +10,6 @@ router
   .route('/booking-history')
   .get(verifyAdmin, adminController.getAllBookings);
 router.route('/payouts').get(adminController.getPayouts);
+router.route('/payouts/:id').patch(adminController.relaseAgencyPayout);
 
 export default { adminRouter: router };

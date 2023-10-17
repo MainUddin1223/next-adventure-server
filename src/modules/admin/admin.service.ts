@@ -237,6 +237,8 @@ const getPayouts = async (meta: IMetaData, filterOptions: IFilterOption) => {
     select: {
       id: true,
       email: true,
+      first_name: true,
+      last_name: true,
       payout_history: {
         where: {
           plan: {
@@ -250,12 +252,17 @@ const getPayouts = async (meta: IMetaData, filterOptions: IFilterOption) => {
           status: true,
           quantity: true,
           amount: true,
+          plan: {
+            select: {
+              plan_name: true,
+            },
+          },
         },
       },
     },
   });
 
-  const groupedAgencies = agencies.map(agency => {
+  const result = agencies.map(agency => {
     const payoutByStatus: { [status: string]: GroupedPayout } =
       agency.payout_history.reduce((acc: any, payout) => {
         const { status, quantity, amount } = payout;
@@ -263,9 +270,8 @@ const getPayouts = async (meta: IMetaData, filterOptions: IFilterOption) => {
         if (!acc[status]) {
           acc[status] = { status, totalQuantity: 0, totalAmount: 0 };
         }
-
         acc[status].totalQuantity += quantity;
-        acc[status].totalAmount += amount.toFixed(2);
+        acc[status].totalAmount += Number(amount);
 
         return acc;
       }, {});
@@ -280,9 +286,27 @@ const getPayouts = async (meta: IMetaData, filterOptions: IFilterOption) => {
 
   const totalPage = totalCount > take ? totalCount / Number(take) : 1;
   return {
-    groupedAgencies,
+    result,
     meta: { page: page, size: take, total: totalCount, totalPage },
   };
+};
+
+const relaseAgencyPayout = async (id: number) => {
+  const result = await prisma.payoutHistory.updateMany({
+    where: {
+      agency_id: id,
+      status: {
+        not: 'paid',
+      },
+    },
+    data: {
+      status: 'paid',
+    },
+  });
+  if (result) {
+    return 'Payout relased successfully';
+  }
+  return 'Payout failed';
 };
 
 export const adminService = {
@@ -290,4 +314,5 @@ export const adminService = {
   getAllTourPlan,
   getAllBookings,
   getPayouts,
+  relaseAgencyPayout,
 };

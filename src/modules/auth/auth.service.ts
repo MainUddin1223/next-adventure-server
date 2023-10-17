@@ -24,17 +24,8 @@ const createUser = async (payload: IRegisterPayload) => {
     config.jwt.refresh_secret as string,
     config.jwt.refresh_expires_in as string
   );
-  if (data.role === 'admin') {
-    const userData = await authUtils.getAdminData(result.id);
-    return { result: userData, accessToken };
-  }
-  if (data.role === 'agency') {
-    const userData = await authUtils.getAgencyData(result.id);
-    return { result: userData, accessToken };
-  } else {
-    const userData = await authUtils.getUserData(result.id);
-    return { result: userData, accessToken };
-  }
+  const userData = await authUtils.getUserData(result.id);
+  return { result: userData, accessToken };
 };
 
 const signin = async (data: ILoginPayload) => {
@@ -112,4 +103,28 @@ const getProfile = async (id: number) => {
   return result;
 };
 
-export const authService = { createUser, signin, signOut, getProfile };
+type IUploadData = {
+  first_name?: string;
+  last_name?: string;
+  contact_no?: string;
+  about_user?: string;
+  profile_img?: string;
+};
+
+const updateProfile = async (data: IUploadData, id: number) => {
+  const result = await prisma.users.update({
+    where: {
+      id,
+    },
+    data,
+  });
+  return result;
+};
+
+export const authService = {
+  createUser,
+  signin,
+  signOut,
+  getProfile,
+  updateProfile,
+};

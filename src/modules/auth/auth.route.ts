@@ -4,9 +4,11 @@ import { verifyAuth } from '../../middlewares/verifyAuth';
 
 const router = express.Router();
 
-router.route('/signup').post(authController.registerUser);
+router.route('/signup').post(authController.signUp);
 router.route('/signin').post(authController.signin);
 router.route('/profile').get(verifyAuth, authController.getProfile);
+router.route('/signout').post(verifyAuth, authController.signOut);
+router.route('/profile/update').patch(verifyAuth, authController.updateProfile);
 router.route('/signout').post(verifyAuth, authController.signOut);
 
 export default { authRouter: router };

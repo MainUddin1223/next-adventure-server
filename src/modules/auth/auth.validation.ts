@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { roles } from './auth.constants';
 
-export const signUpValidateSchema = Joi.object({
+export const registerValidateSchema = Joi.object({
   first_name: Joi.string().required().messages({
     'string.pattern.base': 'Invalid first name',
     'any.required': 'First name is required',
@@ -54,5 +54,43 @@ export const signinValidateSchema = Joi.object({
     'string.min': 'Password must be at least {#limit} characters long',
     'string.max': 'Password cannot exceed {#limit} characters',
     'any.required': 'Password is required',
+  }),
+});
+
+export const signUpValidateSchema = Joi.object({
+  email: Joi.string()
+    .pattern(new RegExp('^\\S+@\\S+\\.\\S+$'))
+    .required()
+    .messages({
+      'string.pattern.base': 'Please enter a valid email address',
+      'any.required': 'Email is required',
+    }),
+  password: Joi.string().min(5).max(16).required().messages({
+    'string.min': 'Password must be at least {#limit} characters long',
+    'string.max': 'Password cannot exceed {#limit} characters',
+    'any.required': 'Password is required',
+  }),
+  confirmPassword: Joi.string().min(5).max(16).required().messages({
+    'string.min': 'Password must be at least {#limit} characters long',
+    'string.max': 'Password cannot exceed {#limit} characters',
+    'any.required': 'Password is required',
+  }),
+});
+
+export const validateUpdateSchema = Joi.object({
+  first_name: Joi.string().optional().messages({
+    'string.pattern.base': 'Invalid first name',
+  }),
+  last_name: Joi.string().optional().messages({
+    'string.pattern.base': 'Invalid last name',
+  }),
+  contact_no: Joi.string().optional().messages({
+    'string.pattern.base': 'Please enter a valid contact number',
+  }),
+  about_user: Joi.string().optional().messages({
+    'string.pattern.base': 'Please enter a valid Info',
+  }),
+  profile_img: Joi.string().optional().messages({
+    'string.pattern.base': 'Please enter a valid Profile image',
   }),
 });

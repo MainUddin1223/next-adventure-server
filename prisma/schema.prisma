@@ -12,17 +12,17 @@ datasource db {
 
 model Users {
   id              Int              @id @default(autoincrement())
-  first_name      String
-  last_name       String
+  first_name      String?
+  last_name       String?
   email           String           @unique
   password        String
   role            Role             @default(user)
-  contact_no      String
-  profile_img     String
+  contact_no      String?
+  profile_img     String?
   refresh_token   String?
   rating          Decimal?         @db.Decimal(10, 1)
   is_featured     Boolean          @default(false)
-  about_user      String
+  about_user      String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   plans           Plans[]
@@ -50,6 +50,7 @@ model Plans {
   cover_location    String[]
   tour_duration     Int
   starting_time     DateTime
+  destination       String           @default("unknown")
   total_meals       Int
   description       String
   is_featured       Boolean          @default(false)
