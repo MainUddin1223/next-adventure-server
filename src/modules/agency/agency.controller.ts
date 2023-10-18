@@ -36,7 +36,7 @@ const getTourPlans = catchAsync(async (req: Request, res: Response) => {
   const result = await agencyService.getPlans(
     paginationOptions,
     filter,
-    req?.user
+    req?.user?.userId
   );
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -88,7 +88,44 @@ const deleteTourPlan = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Plan updated successfylly',
+    message: 'Plan deleted successfylly',
+    data: result,
+  });
+});
+
+const getBookingHistoryById = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+
+    const result = await agencyService.getBookingHistoryById(
+      id,
+      req?.user?.userId
+    );
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: 'Plan booking fetched successfully',
+      data: result,
+    });
+  }
+);
+type IUpdateBookingStatus = {
+  agencyId: number;
+  bookingHistoryId: number;
+  status: 'booked' | 'rejected';
+};
+
+const manageBookings = catchAsync(async (req: Request, res: Response) => {
+  const bookingHistoryId = Number(req.params.id);
+  const agencyId: number = req?.user?.userId;
+  const status: 'booked' | 'rejected' = req.body.status;
+  const payload: IUpdateBookingStatus = { agencyId, bookingHistoryId, status };
+
+  const result = await agencyService.manageBookings(payload);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Plan booking fetched successfully',
     data: result,
   });
 });
@@ -99,4 +136,6 @@ export const agencyController = {
   getTourPlanById,
   updateTourPlan,
   deleteTourPlan,
+  getBookingHistoryById,
+  manageBookings,
 };

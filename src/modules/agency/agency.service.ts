@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { ICreatePlanData, IMetaData } from './agency.type';
 import { IFilterOption } from '../../types';
-import { getPlanByRoleQuery } from './agency.utils';
 import { JwtPayload } from 'jsonwebtoken';
 import ApiError from '../../errorHandlers/apiError';
 import { StatusCodes } from 'http-status-codes';
@@ -18,11 +17,10 @@ const createPlan = async (data: ICreatePlanData) => {
 const getPlans = async (
   meta: IMetaData,
   filterOptions: IFilterOption,
-  endUser: JwtPayload | null
+  id: number
 ) => {
-  const { skip, take, orderBy } = meta;
+  const { skip, take, orderBy, page } = meta;
   const queryOption: { [key: string]: any } = {};
-
   if (Object.keys(filterOptions).length) {
     const { search, max_price, min_price, ...restOptions } = filterOptions;
 
@@ -57,29 +55,23 @@ const getPlans = async (
     });
   }
 
-  const userQueries = getPlanByRoleQuery(endUser, queryOption);
-
   const result = await prisma.plans.findMany({
     skip: Number(skip),
     take,
     orderBy,
-    ...userQueries,
+    where: {
+      agency_id: id,
+    },
   });
-  const totalCount =
-    endUser?.role === 'agency'
-      ? await prisma.plans.count({
-          where: { agency_id: endUser.userId as number },
-        })
-      : await prisma.plans.count();
+  const totalCount = await prisma.plans.count();
   const totalPage = totalCount > take ? totalCount / Number(take) : 1;
   return {
     result,
-    meta: { page: skip + 1, size: take, total: totalCount, totalPage },
+    meta: { page: page, size: take, total: totalCount, totalPage },
   };
 };
 
 const getTourPlanById = async (id: number, user: JwtPayload | null) => {
-  console.log(id, user);
   if (user && user?.role == 'agency') {
     const result = await prisma.plans.findFirst({
       where: {
@@ -155,10 +147,60 @@ const deleteTourPlan = async (plan_id: number, agency_id: number) => {
   return result;
 };
 
+const getBookingHistoryById = async (id: number, agency_id: number) => {
+  const result = await prisma.plans.findFirst({
+    where: {
+      id,
+      agency_id,
+    },
+    select: {
+      id: true,
+      plan_name: true,
+      booking_history: true,
+    },
+  });
+  return result;
+};
+type IUpdateBookingStatus = {
+  agencyId: number;
+  bookingHistoryId: number;
+  status: 'booked' | 'rejected';
+};
+const manageBookings = async (payload: IUpdateBookingStatus) => {
+  const isBookingHistory = await prisma.bookingHistory.findFirst({
+    where: {
+      id: payload.bookingHistoryId,
+      status: {
+        not: payload.status,
+      },
+      plan: {
+        agency_id: payload.agencyId,
+      },
+    },
+  });
+  if (!isBookingHistory) {
+    throw new ApiError(404, 'Record not found');
+  }
+  const result = await prisma.bookingHistory.update({
+    where: {
+      id: payload.bookingHistoryId,
+    },
+    data: {
+      status: payload.status,
+    },
+  });
+  if (result) {
+    return result;
+  }
+  throw new ApiError(404, 'Booking record not found');
+};
+
 export const agencyService = {
   createPlan,
   getPlans,
   getTourPlanById,
   updateTourPlan,
   deleteTourPlan,
+  getBookingHistoryById,
+  manageBookings,
 };

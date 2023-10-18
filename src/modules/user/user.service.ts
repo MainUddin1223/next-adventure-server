@@ -10,7 +10,6 @@ const prisma = new PrismaClient();
 const bookTourPlan = async (payload: IBookPlanPayload) => {
   //!Payment need to be implemented
   const { userId, planId, quantity } = payload;
-  console.log(payload);
 
   const getPlan = await prisma.plans.findFirst({
     where: {
@@ -186,6 +185,7 @@ const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
       id: true,
       starting_location: true,
       starting_time: true,
+      images: true,
       price: true,
       users: {
         select: {
@@ -241,10 +241,42 @@ const getAgencyById = async (id: number) => {
   return result;
 };
 
+const getTourPlanById = async (id: number) => {
+  const result = await prisma.plans.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      plan_name: true,
+      id: true,
+      starting_location: true,
+      starting_time: true,
+      price: true,
+      tour_duration: true,
+      cover_location: true,
+      total_meals: true,
+      description: true,
+      booking_deadline: true,
+      events: true,
+      users: {
+        select: {
+          first_name: true,
+          last_name: true,
+          id: true,
+          rating: true,
+          profile_img: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
 export const userService = {
   bookTourPlan,
   getTourPlanAndAgency,
   getAgencies,
   getTourPlans,
   getAgencyById,
+  getTourPlanById,
 };

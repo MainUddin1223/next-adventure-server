@@ -55,6 +55,10 @@ export const createPlanSchema = Joi.object({
     'string.pattern.base': 'Invalid description',
     'any.required': 'Description is required',
   }),
+  destination: Joi.string().required().messages({
+    'string.pattern.base': 'Invalid destination',
+    'any.required': 'Destination is required',
+  }),
   booking_deadline: Joi.date().required().messages({
     'date.base': 'Invalid booking deadline',
     'any.required': 'Booking deadline is required',

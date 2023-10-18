@@ -1,23 +1,11 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../errorHandlers/catchAsync';
-import { agencyService } from '../agency/agency.service';
 import sendResponse from '../../utils/sendRespnse';
 import { StatusCodes } from 'http-status-codes';
 import { userService } from './user.service';
 import { pagination } from '../../utils/pagination';
 import pick from '../../utils/pick';
 import { agencyFilterOptons, tourPlanFilterOptions } from './user.constant';
-
-const getTourPlanById = catchAsync(async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const result = await agencyService.getTourPlanById(id, null);
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: 'Plan retrieved successfully',
-    data: result,
-  });
-});
 
 const bookPlan = catchAsync(async (req: Request, res: Response) => {
   const payload = {
@@ -75,6 +63,17 @@ const getAgencyById = catchAsync(async (req: Request, res: Response) => {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
+const getTourPlanById = catchAsync(async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const result = await userService.getTourPlanById(id);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Plan retrieved successfylly',
     data: result,
   });
 });
