@@ -272,6 +272,67 @@ const getTourPlanById = async (id: number) => {
   return result;
 };
 
+const getUpcomingSchedules = async (id: number) => {
+  const result = await prisma.bookingHistory.findMany({
+    where: {
+      user_id: id,
+      plan: {
+        starting_time: {
+          gte: new Date(),
+        },
+      },
+    },
+    select: {
+      id: true,
+      status: true,
+      quantity: true,
+      total_amount: true,
+
+      plan: {
+        select: {
+          plan_name: true,
+          starting_time: true,
+          booking_deadline: true,
+        },
+      },
+    },
+  });
+  return { result };
+};
+
+const manageBookings = async (id: number, userId: number) => {
+  const isBookingHistory = await prisma.bookingHistory.findFirst({
+    where: {
+      id,
+      user_id: userId,
+      status: {
+        not: 'cenceled',
+      },
+      plan: {
+        booking_deadline: {
+          gt: new Date(),
+        },
+      },
+    },
+  });
+  if (!isBookingHistory) {
+    throw new ApiError(404, 'You can not cencel the booking');
+  }
+  const result = await prisma.bookingHistory.update({
+    where: {
+      id,
+      user_id: userId,
+    },
+    data: {
+      status: 'cenceled',
+    },
+  });
+  if (result) {
+    return result;
+  }
+  throw new ApiError(404, 'Something went wrong');
+};
+
 export const userService = {
   bookTourPlan,
   getTourPlanAndAgency,
@@ -279,4 +340,6 @@ export const userService = {
   getTourPlans,
   getAgencyById,
   getTourPlanById,
+  getUpcomingSchedules,
+  manageBookings,
 };

@@ -78,6 +78,27 @@ const getTourPlanById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUpcomingSchedules = catchAsync(async (req: Request, res: Response) => {
+  const result = await userService.getUpcomingSchedules(req?.user?.userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Upcoming Schedules retrieved successfully',
+    data: result,
+  });
+});
+
+const manageBookings = catchAsync(async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const result = await userService.manageBookings(id, req?.user?.userId);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Upcoming Schedules retrieved successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   getTourPlanById,
   bookPlan,
@@ -85,4 +106,6 @@ export const userController = {
   getAgencies,
   getTourPlans,
   getAgencyById,
+  getUpcomingSchedules,
+  manageBookings,
 };
