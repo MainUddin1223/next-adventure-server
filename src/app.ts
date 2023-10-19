@@ -1,11 +1,16 @@
-import cores from 'cors';
+import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import router from './router';
 import config from './config';
 
 const app: Application = express();
-app.use(cores());
+// app.use(cores());
+const corsOptions = {
+  origin: true,
+  credentials: true,
+};
+app.use('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
