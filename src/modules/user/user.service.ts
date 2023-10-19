@@ -73,7 +73,21 @@ const getTourPlanAndAgency = async () => {
       profile_img: true,
     },
   });
-  return { tourPlans, agencies };
+  const reviews = await prisma.reviews.findMany({
+    take: 10,
+    select: {
+      rating: true,
+      review_description: true,
+      user: {
+        select: {
+          first_name: true,
+          last_name: true,
+          profile_img: true,
+        },
+      },
+    },
+  });
+  return { tourPlans, agencies, reviews };
 };
 
 const getAgencies = async (meta: IMetaData, filterOptions: IFilterOption) => {
@@ -149,6 +163,12 @@ const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
           },
         },
         {
+          destination: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        },
+        {
           starting_location: {
             contains: search,
             mode: 'insensitive',
@@ -185,6 +205,7 @@ const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
       id: true,
       starting_location: true,
       starting_time: true,
+      destination: true,
       images: true,
       price: true,
       users: {
@@ -333,6 +354,92 @@ const manageBookings = async (id: number, userId: number) => {
   throw new ApiError(404, 'Something went wrong');
 };
 
+const getAllBookings = async (
+  meta: IMetaData,
+  filterOptions: IFilterOption,
+  id: number
+) => {
+  const { skip, take, orderBy, page } = meta;
+  const queryOption: { [key: string]: any } = {};
+
+  if (Object.keys(filterOptions).length) {
+    const { search, ...restOptions } = filterOptions;
+    if (search) {
+      queryOption['OR'] = [
+        {
+          plan: {
+            plan_name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+        },
+      ];
+    }
+    Object.entries(restOptions).forEach(([field, value]) => {
+      queryOption[field] = value;
+    });
+  }
+  const result = await prisma.bookingHistory.findMany({
+    skip,
+    take,
+    orderBy,
+    where: {
+      user_id: id,
+      ...queryOption,
+    },
+    select: {
+      id: true,
+      status: true,
+      total_amount: true,
+      quantity: true,
+      createdAt: true,
+      user: {
+        select: {
+          first_name: true,
+          last_name: true,
+          id: true,
+          email: true,
+        },
+      },
+      plan: {
+        select: {
+          plan_name: true,
+          booking_deadline: true,
+        },
+      },
+    },
+  });
+
+  const totalCount = await prisma.bookingHistory.count({});
+
+  const totalPage = totalCount > take ? totalCount / Number(take) : 1;
+  return {
+    result,
+    meta: { page: page, size: take, total: totalCount, totalPage },
+  };
+};
+
+type IReviewPayload = {
+  rating: number;
+  review_description: string;
+};
+
+const leaveReview = async (id: number, data: IReviewPayload) => {
+  const isAlreadyReviewd = await prisma.reviews.findFirst({
+    where: {
+      user_id: id,
+    },
+  });
+  if (isAlreadyReviewd) {
+    throw new ApiError(500, 'You have already submitted a review');
+  }
+  const result = await prisma.reviews.create({
+    data: { ...data, user_id: id },
+  });
+  return result;
+};
+
 export const userService = {
   bookTourPlan,
   getTourPlanAndAgency,
@@ -342,4 +449,6 @@ export const userService = {
   getTourPlanById,
   getUpcomingSchedules,
   manageBookings,
+  getAllBookings,
+  leaveReview,
 };

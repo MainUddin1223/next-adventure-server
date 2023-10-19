@@ -2,75 +2,28 @@ import { PrismaClient } from '@prisma/client';
 import { IMetaData } from '../agency/agency.type';
 import { IFilterOption } from '../../types';
 import { GroupedPayout } from './admin.type';
+import { commonGetAllUserQuery } from './admin.utils';
+import ApiError from '../../errorHandlers/apiError';
 
 const prisma = new PrismaClient();
+
+const getAllAdmins = async (meta: IMetaData, filterOptions: IFilterOption) => {
+  const result = await commonGetAllUserQuery(meta, filterOptions, 'admin');
+  return result;
+};
+
+const getAllUsers = async (meta: IMetaData, filterOptions: IFilterOption) => {
+  console.log('service', meta);
+  const result = await commonGetAllUserQuery(meta, filterOptions, 'user');
+  return result;
+};
 
 const getAllAgencies = async (
   meta: IMetaData,
   filterOptions: IFilterOption
 ) => {
-  const { skip, take, orderBy, page } = meta;
-  const queryOption: { [key: string]: any } = {};
-
-  if (Object.keys(filterOptions).length) {
-    const { search, ...restOptions } = filterOptions;
-    if (search) {
-      queryOption['OR'] = [
-        {
-          first_name: {
-            contains: search,
-            mode: 'insensitive',
-          },
-        },
-        {
-          last_name: {
-            contains: search,
-            mode: 'insensitive',
-          },
-        },
-      ];
-    }
-    Object.entries(restOptions).forEach(([field, value]) => {
-      queryOption[field] = value;
-    });
-  }
-  const result = await prisma.users.findMany({
-    skip,
-    take,
-    orderBy,
-    where: {
-      ...queryOption,
-      role: 'agency',
-    },
-    select: {
-      id: true,
-      first_name: true,
-      last_name: true,
-      email: true,
-      contact_no: true,
-      profile_img: true,
-      rating: true,
-      is_featured: true,
-      about_user: true,
-      createdAt: true,
-      updatedAt: true,
-      plans: true,
-      booking_history: true,
-      payout_history: true,
-    },
-  });
-
-  const totalCount = await prisma.users.count({
-    where: {
-      role: 'agency',
-    },
-  });
-
-  const totalPage = totalCount > take ? totalCount / Number(take) : 1;
-  return {
-    result,
-    meta: { page: page, size: take, total: totalCount, totalPage },
-  };
+  const result = await commonGetAllUserQuery(meta, filterOptions, 'agency');
+  return result;
 };
 
 const getAllTourPlan = async (
@@ -309,10 +262,30 @@ const relaseAgencyPayout = async (id: number) => {
   return 'Payout failed';
 };
 
+const createAdmin = async (id: number, role: 'admin') => {
+  const result = await prisma.users.update({
+    where: {
+      id,
+      role: 'user',
+    },
+    data: {
+      role,
+    },
+  });
+  if (!result) {
+    throw new ApiError(404, 'User not found');
+  } else {
+    return result;
+  }
+};
+
 export const adminService = {
   getAllAgencies,
   getAllTourPlan,
   getAllBookings,
   getPayouts,
   relaseAgencyPayout,
+  getAllAdmins,
+  getAllUsers,
+  createAdmin,
 };

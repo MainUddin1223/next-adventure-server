@@ -28,6 +28,7 @@ model Users {
   plans           Plans[]
   booking_history BookingHistory[]
   payout_history  PayoutHistory[]
+  reviews         Reviews[]
 
   @@map("user")
 }
@@ -99,4 +100,14 @@ enum PayoutStatus {
   pending
   paid
   cenceled
+}
+
+model Reviews {
+  id                 Int      @id @default(autoincrement())
+  user               Users    @relation(fields: [user_id], references: [id])
+  user_id            Int
+  rating             Int
+  review_description String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }

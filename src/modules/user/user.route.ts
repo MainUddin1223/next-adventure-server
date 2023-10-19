@@ -16,5 +16,7 @@ router.route('/agencies').get(userController.getAgencies);
 router.route('/tour-plans').get(userController.getTourPlans);
 router.route('/agency/:id').get(verifyAuth, userController.getAgencyById);
 router.route('/plan-details/:id').get(userController.getTourPlanById);
+router.route('/booking-history').get(verifyUser, userController.getAllBookings);
+router.route('/review').post(verifyUser, userController.leaveReview);
 
 export default { userRouter: router };

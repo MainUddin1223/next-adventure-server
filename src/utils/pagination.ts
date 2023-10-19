@@ -1,7 +1,7 @@
 export const pagination = (data: any) => {
   const {
     page = 1,
-    size = 10,
+    limit = 10,
     sortBy = 'createdAt',
     sortOrder = 'desc',
   } = data;
@@ -9,8 +9,8 @@ export const pagination = (data: any) => {
     [sortBy]: sortOrder,
   };
   const options = {
-    ['skip']: (Number(page) - 1) * Number(size),
-    ['take']: Number(size),
+    ['skip']: (Number(page) - 1) * Number(limit),
+    ['take']: Number(limit),
     ['orderBy']: sortOption,
     ['page']: Number(page),
   };

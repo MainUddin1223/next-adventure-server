@@ -20,10 +20,33 @@ const getAgencies = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
+  const paginationOptions = await pagination(req.query);
+  const filter = pick(req.query, agencyFilterOptons);
+  const result = await adminService.getAllAdmins(paginationOptions, filter);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const paginationOptions = await pagination(req.query);
+  const filter = pick(req.query, agencyFilterOptons);
+  const result = await adminService.getAllUsers(paginationOptions, filter);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
 const getTourPlans = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = await pagination(req.query);
   const filter = pick(req.query, agencyFilterOptons);
-  const result = await adminService.getPayouts(paginationOptions, filter);
+  const result = await adminService.getAllTourPlan(paginationOptions, filter);
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
@@ -67,10 +90,24 @@ const relaseAgencyPayout = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createAdmin = catchAsync(async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const result = await adminService.createAdmin(id, req.body.role);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Admin created successfully',
+    data: result,
+  });
+});
+
 export const adminController = {
   getAgencies,
   getTourPlans,
   getAllBookings,
   getPayouts,
   relaseAgencyPayout,
+  createAdmin,
+  getAllAdmins,
+  getAllUsers,
 };

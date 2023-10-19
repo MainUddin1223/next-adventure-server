@@ -6,6 +6,9 @@ import { userService } from './user.service';
 import { pagination } from '../../utils/pagination';
 import pick from '../../utils/pick';
 import { agencyFilterOptons, tourPlanFilterOptions } from './user.constant';
+import { bookingHistoryFilterOptions } from '../admin/admin.constant';
+import { reviewSchema } from './user.validator';
+import ApiError from '../../errorHandlers/apiError';
 
 const bookPlan = catchAsync(async (req: Request, res: Response) => {
   const payload = {
@@ -99,6 +102,36 @@ const manageBookings = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllBookings = catchAsync(async (req: Request, res: Response) => {
+  const paginationOptions = await pagination(req.query);
+  const filter = pick(req.query, bookingHistoryFilterOptions);
+  const result = await userService.getAllBookings(
+    paginationOptions,
+    filter,
+    req?.user?.userId
+  );
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Data retrieved successfully',
+    data: result,
+  });
+});
+
+const leaveReview = catchAsync(async (req: Request, res: Response) => {
+  const { error } = await reviewSchema.validate(req.body);
+  if (error) {
+    throw new ApiError(400, 'Inavlid Input');
+  }
+  const result = await userService.leaveReview(req?.user?.userId, req.body);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Your review submitted successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   getTourPlanById,
   bookPlan,
@@ -108,4 +141,6 @@ export const userController = {
   getAgencyById,
   getUpcomingSchedules,
   manageBookings,
+  getAllBookings,
+  leaveReview,
 };

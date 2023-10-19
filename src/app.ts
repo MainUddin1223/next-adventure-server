@@ -17,7 +17,8 @@ app.use('/test', (req, res) => {
     message,
   });
 });
-app.use('/', (req, res) => {
+
+app.get('', (req, res) => {
   const message = `Server is running `;
   res.status(StatusCodes.OK).json({
     message,

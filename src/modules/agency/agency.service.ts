@@ -166,6 +166,7 @@ type IUpdateBookingStatus = {
   bookingHistoryId: number;
   status: 'booked' | 'rejected';
 };
+
 const manageBookings = async (payload: IUpdateBookingStatus) => {
   const isBookingHistory = await prisma.bookingHistory.findFirst({
     where: {
