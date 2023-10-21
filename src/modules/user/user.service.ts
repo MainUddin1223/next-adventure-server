@@ -58,7 +58,7 @@ const getTourPlanAndAgency = async () => {
       images: true,
       price: true,
       starting_time: true,
-      starting_location: true,
+      destination: true,
     },
   });
   const agencies = await prisma.users.findMany({
