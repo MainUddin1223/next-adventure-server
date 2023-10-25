@@ -12,8 +12,7 @@ const prisma = new PrismaClient();
 
 const createUser = async (payload: IRegisterPayload) => {
   const hash = bcrypt.hashSync(payload.password, 10);
-  const data = { ...payload, password: hash, role: 'super_admin' };
-  console.log(data);
+  const data = { ...payload, password: hash };
   const result = await prisma.users.create({
     data,
   });

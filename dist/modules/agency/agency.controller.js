@@ -1,221 +1,134 @@
-'use strict';
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator['throw'](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done
-          ? resolve(result.value)
-          : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
-  };
-var __importDefault =
-  (this && this.__importDefault) ||
-  function (mod) {
-    return mod && mod.__esModule ? mod : { default: mod };
-  };
-Object.defineProperty(exports, '__esModule', { value: true });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.agencyController = void 0;
-const catchAsync_1 = __importDefault(require('../../errorHandlers/catchAsync'));
-const sendRespnse_1 = __importDefault(require('../../utils/sendRespnse'));
-const http_status_codes_1 = require('http-status-codes');
-const agency_service_1 = require('./agency.service');
-const agency_validate_1 = require('./agency.validate');
-const pagination_1 = require('../../utils/pagination');
-const pick_1 = __importDefault(require('../../utils/pick'));
-const agency_constants_1 = require('./agency.constants');
-const createPlan = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
+const catchAsync_1 = __importDefault(require("../../errorHandlers/catchAsync"));
+const sendRespnse_1 = __importDefault(require("../../utils/sendRespnse"));
+const http_status_codes_1 = require("http-status-codes");
+const agency_service_1 = require("./agency.service");
+const agency_validate_1 = require("./agency.validate");
+const pagination_1 = require("../../utils/pagination");
+const pick_1 = __importDefault(require("../../utils/pick"));
+const agency_constants_1 = require("./agency.constants");
+const createPlan = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { error } = yield agency_validate_1.createPlanSchema.validate(
-      req.body
-    );
+    const { error } = yield agency_validate_1.createPlanSchema.validate(req.body);
     if (error) {
-      (0, sendRespnse_1.default)(res, {
-        statusCode:
-          http_status_codes_1.StatusCodes.NON_AUTHORITATIVE_INFORMATION,
-        success: false,
-        message: 'Fail to create plan',
-        data: error.details,
-      });
-    } else {
-      const planPayload = Object.assign(Object.assign({}, req.body), {
-        agency_id:
-          (_a = req === null || req === void 0 ? void 0 : req.user) === null ||
-          _a === void 0
-            ? void 0
-            : _a.userId,
-      });
-      const result = yield agency_service_1.agencyService.createPlan(
-        planPayload
-      );
-      (0, sendRespnse_1.default)(res, {
-        statusCode: http_status_codes_1.StatusCodes.OK,
-        success: true,
-        message: 'Plan created successfully',
-        data: result,
-      });
+        (0, sendRespnse_1.default)(res, {
+            statusCode: http_status_codes_1.StatusCodes.NON_AUTHORITATIVE_INFORMATION,
+            success: false,
+            message: 'Fail to create plan',
+            data: error.details,
+        });
     }
-  })
-);
-const getTourPlans = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
+    else {
+        const planPayload = Object.assign(Object.assign({}, req.body), { agency_id: (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.userId });
+        const result = yield agency_service_1.agencyService.createPlan(planPayload);
+        (0, sendRespnse_1.default)(res, {
+            statusCode: http_status_codes_1.StatusCodes.OK,
+            success: true,
+            message: 'Plan created successfully',
+            data: result,
+        });
+    }
+}));
+const getTourPlans = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const paginationOptions = yield (0, pagination_1.pagination)(req.query);
-    const filter = (0, pick_1.default)(
-      req.query,
-      agency_constants_1.planFilters
-    );
-    const result = yield agency_service_1.agencyService.getPlans(
-      paginationOptions,
-      filter,
-      (_b = req === null || req === void 0 ? void 0 : req.user) === null ||
-        _b === void 0
-        ? void 0
-        : _b.userId
-    );
+    const filter = (0, pick_1.default)(req.query, agency_constants_1.planFilters);
+    const result = yield agency_service_1.agencyService.getPlans(paginationOptions, filter, (_b = req === null || req === void 0 ? void 0 : req.user) === null || _b === void 0 ? void 0 : _b.userId);
     (0, sendRespnse_1.default)(res, {
-      statusCode: http_status_codes_1.StatusCodes.OK,
-      success: true,
-      message: 'Plans fetched successfully',
-      data: result,
-    });
-  })
-);
-const getTourPlanById = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
-    const id = Number(req.params.id);
-    const result = yield agency_service_1.agencyService.getTourPlanById(
-      id,
-      req.user
-    );
-    (0, sendRespnse_1.default)(res, {
-      statusCode: http_status_codes_1.StatusCodes.OK,
-      success: true,
-      message: 'Plan retrieved successfylly',
-      data: result,
-    });
-  })
-);
-const updateTourPlan = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
-    const { error } = yield agency_validate_1.updatePlanSchema.validate(
-      req.body
-    );
-    if (error) {
-      (0, sendRespnse_1.default)(res, {
-        statusCode:
-          http_status_codes_1.StatusCodes.NON_AUTHORITATIVE_INFORMATION,
-        success: false,
-        message: 'Fail to update the plan',
-        data: error.details,
-      });
-    } else {
-      const id = Number(req.params.id);
-      const result = yield agency_service_1.agencyService.updateTourPlan(
-        Object.assign(Object.assign({}, req.body), { id }),
-        (_c = req === null || req === void 0 ? void 0 : req.user) === null ||
-          _c === void 0
-          ? void 0
-          : _c.userId
-      );
-      (0, sendRespnse_1.default)(res, {
         statusCode: http_status_codes_1.StatusCodes.OK,
         success: true,
-        message: 'Plan updated successfylly',
+        message: 'Plans fetched successfully',
         data: result,
-      });
+    });
+}));
+const getTourPlanById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = Number(req.params.id);
+    const result = yield agency_service_1.agencyService.getTourPlanById(id, req.user);
+    (0, sendRespnse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Plan retrieved successfylly',
+        data: result,
+    });
+}));
+const updateTourPlan = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
+    const { error } = yield agency_validate_1.updatePlanSchema.validate(req.body);
+    if (error) {
+        (0, sendRespnse_1.default)(res, {
+            statusCode: http_status_codes_1.StatusCodes.NON_AUTHORITATIVE_INFORMATION,
+            success: false,
+            message: 'Fail to update the plan',
+            data: error.details,
+        });
     }
-  })
-);
-const deleteTourPlan = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
+    else {
+        const id = Number(req.params.id);
+        const result = yield agency_service_1.agencyService.updateTourPlan(Object.assign(Object.assign({}, req.body), { id }), (_c = req === null || req === void 0 ? void 0 : req.user) === null || _c === void 0 ? void 0 : _c.userId);
+        (0, sendRespnse_1.default)(res, {
+            statusCode: http_status_codes_1.StatusCodes.OK,
+            success: true,
+            message: 'Plan updated successfylly',
+            data: result,
+        });
+    }
+}));
+const deleteTourPlan = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d;
     const id = Number(req.params.id);
-    const result = yield agency_service_1.agencyService.deleteTourPlan(
-      id,
-      (_d = req === null || req === void 0 ? void 0 : req.user) === null ||
-        _d === void 0
-        ? void 0
-        : _d.userId
-    );
+    const result = yield agency_service_1.agencyService.deleteTourPlan(id, (_d = req === null || req === void 0 ? void 0 : req.user) === null || _d === void 0 ? void 0 : _d.userId);
     (0, sendRespnse_1.default)(res, {
-      statusCode: http_status_codes_1.StatusCodes.OK,
-      success: true,
-      message: 'Plan deleted successfylly',
-      data: result,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Plan deleted successfylly',
+        data: result,
     });
-  })
-);
-const getBookingHistoryById = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
+}));
+const getBookingHistoryById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _e;
     const id = Number(req.params.id);
-    const result = yield agency_service_1.agencyService.getBookingHistoryById(
-      id,
-      (_e = req === null || req === void 0 ? void 0 : req.user) === null ||
-        _e === void 0
-        ? void 0
-        : _e.userId
-    );
+    const result = yield agency_service_1.agencyService.getBookingHistoryById(id, (_e = req === null || req === void 0 ? void 0 : req.user) === null || _e === void 0 ? void 0 : _e.userId);
     (0, sendRespnse_1.default)(res, {
-      statusCode: http_status_codes_1.StatusCodes.OK,
-      success: true,
-      message: 'Plan booking fetched successfully',
-      data: result,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Plan booking fetched successfully',
+        data: result,
     });
-  })
-);
-const manageBookings = (0, catchAsync_1.default)((req, res) =>
-  __awaiter(void 0, void 0, void 0, function* () {
+}));
+const manageBookings = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _f;
     const bookingHistoryId = Number(req.params.id);
-    const agencyId =
-      (_f = req === null || req === void 0 ? void 0 : req.user) === null ||
-      _f === void 0
-        ? void 0
-        : _f.userId;
+    const agencyId = (_f = req === null || req === void 0 ? void 0 : req.user) === null || _f === void 0 ? void 0 : _f.userId;
     const status = req.body.status;
     const payload = { agencyId, bookingHistoryId, status };
     const result = yield agency_service_1.agencyService.manageBookings(payload);
     (0, sendRespnse_1.default)(res, {
-      statusCode: http_status_codes_1.StatusCodes.OK,
-      success: true,
-      message: 'Plan booking fetched successfully',
-      data: result,
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Plan booking fetched successfully',
+        data: result,
     });
-  })
-);
+}));
 exports.agencyController = {
-  createPlan,
-  getTourPlans,
-  getTourPlanById,
-  updateTourPlan,
-  deleteTourPlan,
-  getBookingHistoryById,
-  manageBookings,
+    createPlan,
+    getTourPlans,
+    getTourPlanById,
+    updateTourPlan,
+    deleteTourPlan,
+    getBookingHistoryById,
+    manageBookings,
 };

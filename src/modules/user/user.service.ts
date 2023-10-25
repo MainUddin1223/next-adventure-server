@@ -58,6 +58,7 @@ const getTourPlanAndAgency = async () => {
       images: true,
       price: true,
       starting_time: true,
+      booking_deadline: true,
       destination: true,
     },
   });
@@ -278,6 +279,7 @@ const getTourPlanById = async (id: number) => {
       total_meals: true,
       description: true,
       booking_deadline: true,
+      destination: true,
       events: true,
       users: {
         select: {
