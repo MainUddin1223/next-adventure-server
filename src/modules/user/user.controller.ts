@@ -132,6 +132,22 @@ const leaveReview = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const reviewPlan = catchAsync(async (req: Request, res: Response) => {
+  const booking_id = Number(req.params.id);
+  // const { error } = await reviewSchema.validate(req.body);
+  // if (error) {
+  //   throw new ApiError(400, 'Inavlid Input');
+  // }
+  const payload = { ...req.body, user_id: req?.user?.userId, booking_id };
+  const result = await userService.reviewPlan(payload);
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Your review submitted successfully',
+    data: result,
+  });
+});
+
 export const userController = {
   getTourPlanById,
   bookPlan,
@@ -143,4 +159,5 @@ export const userController = {
   manageBookings,
   getAllBookings,
   leaveReview,
+  reviewPlan,
 };

@@ -9,7 +9,7 @@ export const pagination = (data: any) => {
     [sortBy]: sortOrder,
   };
   const options = {
-    ['skip']: (Number(page) - 1) * Number(limit),
+    ['skip']: Number(page) == 0 ? 0 : (Number(page) - 1) * Number(limit),
     ['take']: Number(limit),
     ['orderBy']: sortOption,
     ['page']: Number(page),

@@ -20,7 +20,7 @@ model Users {
   contact_no      String?
   profile_img     String?
   refresh_token   String?
-  rating          Decimal?         @db.Decimal(10, 1)
+  rating          Int[]
   is_featured     Boolean          @default(false)
   about_user      String?
   createdAt       DateTime         @default(now())
@@ -29,6 +29,7 @@ model Users {
   booking_history BookingHistory[]
   payout_history  PayoutHistory[]
   reviews         Reviews[]
+  planReviews     PlanReviews[]
 
   @@map("user")
 }
@@ -61,6 +62,7 @@ model Plans {
   booking_history   BookingHistory[]
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+  planReviews       PlanReviews[]
 }
 
 model BookingHistory {
@@ -74,6 +76,7 @@ model BookingHistory {
   total_amount Int
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+  planReviews  PlanReviews[]
 }
 
 enum BookingStatus {
@@ -111,4 +114,18 @@ model Reviews {
   review_description String
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model PlanReviews {
+  id         Int            @id @default(autoincrement())
+  user_id    Int
+  plan_id    Int
+  booking_id Int
+  rating     Int
+  feedback   String
+  user       Users          @relation(fields: [user_id], references: [id])
+  plans      Plans          @relation(fields: [plan_id], references: [id])
+  booking    BookingHistory @relation(fields: [booking_id], references: [id])
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 }

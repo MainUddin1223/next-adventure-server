@@ -132,6 +132,11 @@ const getAgencies = async (meta: IMetaData, filterOptions: IFilterOption) => {
       first_name: true,
       last_name: true,
       profile_img: true,
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
   });
 
@@ -206,6 +211,7 @@ const getTourPlans = async (meta: IMetaData, filterOptions: IFilterOption) => {
       id: true,
       starting_location: true,
       starting_time: true,
+      booking_deadline: true,
       destination: true,
       images: true,
       price: true,
@@ -258,6 +264,11 @@ const getAgencyById = async (id: number) => {
           starting_location: true,
         },
       },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
   });
   return result;
@@ -278,6 +289,7 @@ const getTourPlanById = async (id: number) => {
       cover_location: true,
       total_meals: true,
       description: true,
+      images: true,
       booking_deadline: true,
       destination: true,
       events: true,
@@ -406,8 +418,17 @@ const getAllBookings = async (
       },
       plan: {
         select: {
+          id: true,
           plan_name: true,
           booking_deadline: true,
+          starting_time: true,
+          destination: true,
+        },
+      },
+      planReviews: {
+        select: {
+          rating: true,
+          feedback: true,
         },
       },
     },
@@ -442,6 +463,58 @@ const leaveReview = async (id: number, data: IReviewPayload) => {
   return result;
 };
 
+type IReviewPlanPayload = {
+  plan_id: number;
+  user_id: number;
+  booking_id: number;
+  rating: number;
+  feedback: string;
+  agency_id: number;
+};
+
+const reviewPlan = async (data: IReviewPlanPayload) => {
+  const { agency_id, ...payload } = data;
+  const isReviewed = await prisma.bookingHistory.findFirst({
+    where: {
+      plan_id: data?.plan_id,
+      user_id: data.user_id,
+    },
+    include: {
+      planReviews: {
+        where: {
+          user_id: data.user_id,
+        },
+      },
+    },
+  });
+  if (isReviewed && isReviewed.planReviews.length) {
+    throw new ApiError(500, 'You have already reviewd the plan');
+  } else {
+    const result = await prisma.planReviews.create({
+      data: payload,
+    });
+    if (result) {
+      const agencyData = await prisma.users.findFirst({
+        where: {
+          id: agency_id,
+        },
+        select: {
+          rating: true,
+        },
+      });
+      const rating: [] = agencyData?.rating as [];
+      const addRating = [...rating, data?.rating];
+      await prisma.users.update({
+        where: {
+          id: agency_id,
+        },
+        data: { rating: addRating },
+      });
+      return 'Review submitted successfully';
+    }
+  }
+};
+
 export const userService = {
   bookTourPlan,
   getTourPlanAndAgency,
@@ -453,4 +526,5 @@ export const userService = {
   manageBookings,
   getAllBookings,
   leaveReview,
+  reviewPlan,
 };
