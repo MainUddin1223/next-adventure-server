@@ -62,6 +62,9 @@ const getPlans = async (
     where: {
       agency_id: id,
     },
+    include: {
+      booking_history: true,
+    },
   });
   const totalCount = await prisma.plans.count();
   const totalPage = totalCount > take ? totalCount / Number(take) : 1;
@@ -196,6 +199,18 @@ const manageBookings = async (payload: IUpdateBookingStatus) => {
   throw new ApiError(404, 'Booking record not found');
 };
 
+const getUpcomingPlan = async (id: number) => {
+  const result = await prisma.plans.findMany({
+    where: {
+      agency_id: id,
+      booking_deadline: {
+        gt: new Date(),
+      },
+    },
+  });
+  return result;
+};
+
 export const agencyService = {
   createPlan,
   getPlans,
@@ -204,4 +219,5 @@ export const agencyService = {
   deleteTourPlan,
   getBookingHistoryById,
   manageBookings,
+  getUpcomingPlan,
 };
