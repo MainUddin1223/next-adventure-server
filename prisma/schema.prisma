@@ -82,7 +82,7 @@ model BookingHistory {
 enum BookingStatus {
   pending
   booked
-  cenceled
+  canceled
   rejected
   completed
 }
